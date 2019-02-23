@@ -36,4 +36,43 @@ export const views = (store, container, templates) => {
 
 };
 
+/**
+ * Import templates
+ * Returns templates and container
+ * @return {any}
+ */
+export const getTemplates = ((views) => {
+  const templates = {};
+  /**
+   * Get the filename from directory, remove .html.
+   * @param {string} name - The hostname.
+   * @return {string}
+   */
+  const getName = (name) => (name.split('/').pop()).slice(0, -5);
+  // get all html views
+  if (views.keys().length < 1) {
+    throw Error('Templates are missing!');
+  }
+  // generate templates object
+  views.keys().forEach((view) => {
+    const name = getName(view);
+    if (templates[name]) {
+      throw new Error(`Duplicate name of template: ${view}`);
+    }
+    templates[name] = views(view);
+  });
+  if (templates['root'] === undefined) {
+    throw new Error('Container is missing!');
+  }
+  // define app container
+  const container = templates['root'];
+  // remove app container template from list of templates
+  delete templates['root'];
+  
+  return {
+    templates,
+    container
+  };
+});
+
 export default views;
