@@ -1,0 +1,24 @@
+{
+  "name": "drmzn-mustache",
+  "version": "0.0.1",
+  "description": "Debounced render function for Mustache/Redux views",
+  "main": "index.js",
+  "keywords": [
+    "mustache",
+    "redux",
+    "render"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "alex.tzvetanov@gmail.com",
+  "license": "MIT License",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/max0xff/drmzn-mustache"
+  },
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "morphdom": "^2.3.3"
+  }
+}
