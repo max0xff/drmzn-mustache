@@ -1,5 +1,7 @@
 import morphdom from 'morphdom';
 import { debounce } from 'lodash';
+import serialize from 'serialize-javascript';
+import jsStringEscape from 'js-string-escape';
 
 export const views = (store, container, templates) => {
   
@@ -74,5 +76,22 @@ export const getTemplates = ((views) => {
     container
   };
 });
+
+export const ssr = (placeholder, container, templates, version) => {
+  const render = (store, req, res, error = false) => {
+    const currentState = store.getState();
+    const html = container.render(currentState, templates);
+    const preloadedState = jsStringEscape(serialize(currentState, { isJSON: true }));
+    res.header('Content-Type', 'text/html; charset=utf-8');
+    if (error) {
+      res.status(404).send(placeholder(html, preloadedState, version));
+    } else {
+      res.send(placeholder(html, preloadedState, version));
+    }
+  }
+  return {
+    render
+  }
+};
 
 export default views;

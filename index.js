@@ -3,11 +3,17 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.default = exports.getTemplates = exports.views = void 0;
+exports.default = exports.ssr = exports.getTemplates = exports.views = void 0;
 
 var _morphdom = _interopRequireDefault(require("morphdom"));
 
 var _lodash = require("lodash");
+
+var _serializeJavascript = _interopRequireDefault(
+  require("serialize-javascript")
+);
+
+var _jsStringEscape = _interopRequireDefault(require("js-string-escape"));
 
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : { default: obj };
@@ -49,32 +55,21 @@ var views = function views(store, container, templates) {
     render: render
   };
 };
-/**
- * Import templates
- * Returns templates and container
- * @return {any}
- */
 
 exports.views = views;
 
 var getTemplates = function getTemplates(views) {
   var templates = {};
-  /**
-   * Get the filename from directory, remove .html.
-   * @param {string} name - The hostname.
-   * @return {string}
-   */
-
   var getName = function getName(name) {
     return name
       .split("/")
       .pop()
       .slice(0, -5);
-  }; // get all html views
+  };
 
   if (views.keys().length < 1) {
     throw Error("Templates are missing!");
-  } // generate templates object
+  }
 
   views.keys().forEach(function(view) {
     var name = getName(view);
@@ -88,9 +83,9 @@ var getTemplates = function getTemplates(views) {
 
   if (templates["root"] === undefined) {
     throw new Error("Container is missing!");
-  } // define app container
+  }
 
-  var container = templates["root"]; // remove app container template from list of templates
+  var container = templates["root"];
 
   delete templates["root"];
   return {
@@ -100,5 +95,34 @@ var getTemplates = function getTemplates(views) {
 };
 
 exports.getTemplates = getTemplates;
+
+var ssr = function ssr(placeholder, container, templates, version) {
+  var render = function render(store, req, res, error) {
+    if (error === void 0) {
+      error = false;
+    }
+
+    var currentState = store.getState();
+    var html = container.render(currentState, templates);
+    var preloadedState = (0, _jsStringEscape.default)(
+      (0, _serializeJavascript.default)(currentState, {
+        isJSON: true
+      })
+    );
+    res.header("Content-Type", "text/html; charset=utf-8");
+
+    if (error) {
+      res.status(404).send(placeholder(html, preloadedState, version));
+    } else {
+      res.send(placeholder(html, preloadedState, version));
+    }
+  };
+
+  return {
+    render: render
+  };
+};
+
+exports.ssr = ssr;
 var _default = views;
 exports.default = _default;

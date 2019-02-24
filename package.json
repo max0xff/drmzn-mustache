@@ -1,6 +1,6 @@
 {
   "name": "drmzn-mustache",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Debounced render function for Mustache/Redux views",
   "main": "index.js",
   "keywords": [
